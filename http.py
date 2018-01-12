@@ -2,7 +2,6 @@ import requests
 import logging
 import json
 import pprint
-import collections
 
 from ab.base import Link, KV
 
@@ -55,34 +54,51 @@ class Collection_JSON (TheOrigin):
     def ab (self, **kwa):
         data = json.loads (kwa.get('data').content).get ('collection')
 
-        # self.log ('version: {}'.format (data.get ('version')))
-        # self.log ('href: {}'.format (data.get ('href')))
-        # self.log ('items: \n{}'.format (pprint.pformat (data.get ('items'), indent=2)))
-        # self.log ('template: {}'.format (data.get ('template')))
+        # version and href SHOULD be there
 
-        return dict (
+        res = dict (
+            version = data.get ('version'),
             href = data.get ('href'),
-            thing = [
-                dict (
-                    thing = [
-                        KV (d.get ('name'), d.get ('value'))
-                        for d in i.get ('data')
-                    ],
-                    links = [
-                        Link ('DELETE', 'delete', i.get ('href')),
-                        Link ('GET',    'view',   i.get ('href')),
-                    ]
-                )
-                for i in data.get ('items')
-            ],
-            links = [
-                Link ('DELETE', 'delete all', data.get ('href')),
-                Link ('POST',   'new item',   data.get ('href')),
-            ],
-            template = data.get ('template'),
         )
 
-        return self.ab (data = self.reply)
+        # items, links, template, queries, error MAY be there
+
+        if data.get ('items'):
+            res.update (dict (
+                thing = [
+                    dict (
+                        thing = [
+                            KV (d.get ('name'), d.get ('value'))
+                            for d in i.get ('data')
+                        ],
+                        links = [
+                            Link ('DELETE', 'delete', i.get ('href')),
+                            Link ('GET',    'view',   i.get ('href')),
+                        ]
+                    )
+                    for i in data.get ('items')
+                ]
+            ))
+
+        if data.get ('links'):
+            res.update (dict (
+                links = [
+                    Link ('DELETE', 'delete all', data.get ('href')),
+                    Link ('POST',   'new item',   data.get ('href')),
+                ]
+            ))
+
+        if data.get ('template'):
+            res.update (dict (template = data.get ('template')))
+
+        if data.get ('queries'):
+            res.update (dict (template = data.get ('queries')))
+
+        if data.get ('error'):
+            res.update (dict (template = data.get ('error')))
+
+        # self.log (res)
+        return res
 
 class TextHTML (object):
 
