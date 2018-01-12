@@ -26,7 +26,7 @@ class Test_Collection_JSON (unittest.TestCase):
         res = request.get (url = url)
 
         self.assertSequenceEqual (
-            sorted ('href thing links template version'.split()),
+            sorted ('href items links template version'.split()),
             sorted (list (res.keys())),
         )
 

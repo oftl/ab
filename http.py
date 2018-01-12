@@ -3,7 +3,8 @@ import logging
 import json
 import pprint
 
-from ab.base import Link, KV
+# from ab.base import Link, KV
+from ab.base import Link, Data, Item
 
 class Request (object):
 
@@ -24,8 +25,12 @@ class Request (object):
         response = kwa.get ('response')
         ct = response.headers.get ('Content-Type')
 
-        self.log ('raw response: {response}'.format (response = response))
         self.log ('content type: <{ct}>'.format (ct = ct))
+        self.log ('raw response: <{response}>'.format (response = response))
+        self.log ('response text: <{response}>'.format (response = response.text))
+        with open ('./raw-response', 'wb') as fd:
+            for chunk in response.iter_content(chunk_size=128):
+                fd.write(chunk)
 
         # XXX ct can include profile link XXX
         if ct == 'application/vnd.collection+json':
@@ -64,29 +69,41 @@ class Collection_JSON (TheOrigin):
         # items, links, template, queries, error MAY be there
 
         if data.get ('items'):
-            res.update (dict (
-                thing = [
-                    dict (
-                        thing = [
-                            KV (d.get ('name'), d.get ('value'))
-                            for d in i.get ('data')
-                        ],
-                        links = [
-                            Link ('DELETE', 'delete', i.get ('href')),
-                            Link ('GET',    'view',   i.get ('href')),
-                        ]
-                    )
-                    for i in data.get ('items')
-                ]
-            ))
+            res.update (dict (items = [
+                Item (
+                    href = item.get ('href'),
+                    data = [
+                        Data (
+                            name   = data.get ('name'),
+                            value  = data.get ('value'),
+                            prompt = data.get ('prompt'),
+                        )
+                        for data in item.get ('data')
+                    ],
+                    #  links = [
+                    #      Link (
+                    #          method = 'GET',
+                    #          rel    = link.get ('rel'),
+                    #          href   = link.get ('href'),
+                    #          prompt = link.get ('prompt'),
+                    #      )
+                    #      for link in item.get ('links')
+                    #  ],
+                )
+                for item in data.get ('items')
+            ]))
+
 
         if data.get ('links'):
-            res.update (dict (
-                links = [
-                    Link ('DELETE', 'delete all', data.get ('href')),
-                    Link ('POST',   'new item',   data.get ('href')),
-                ]
-            ))
+            res.update (dict (links = [
+                Link (
+                    method = 'GET',
+                    rel    = link.get ('rel'),
+                    href   = link.get ('href'),
+                    prompt = link.get ('prompt'),
+                )
+                for link in data.get ('links')
+            ]))
 
         if data.get ('template'):
             res.update (dict (template = data.get ('template')))
@@ -97,7 +114,7 @@ class Collection_JSON (TheOrigin):
         if data.get ('error'):
             res.update (dict (template = data.get ('error')))
 
-        # self.log (res)
+        self.log ('Collection_JSON.ab res: %s' % res)
         return res
 
 class TextHTML (object):

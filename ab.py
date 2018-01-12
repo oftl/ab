@@ -65,15 +65,18 @@ def main ():
             GET = request.get (url = url),
         ).get (method)
 
-        href, thing = ret.get ('href'), ret.get ('thing')
+        href, items = ret.get ('href'), ret.get ('items')
 
-        print (ui.draw (thing))
+        log ('base items: %s' % items)
+        print (ui.draw (items))
+
+log = lambda msg, level=logging.INFO: logger.info (msg)
 
 if __name__ == '__main__':
     handler = logging.FileHandler ('./ab.log')
     handler.setFormatter (logging.Formatter (fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    log = logging.getLogger ('ab')
-    log.addHandler (handler)
-    log.setLevel (logging.INFO)
+    logger = logging.getLogger ('ab')
+    logger.addHandler (handler)
+    logger.setLevel (logging.INFO)
 
     main()

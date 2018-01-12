@@ -1,4 +1,7 @@
-from ab.base import NavTable, Link, KV
+import logging
+
+from ab.base import NavTable
+from ab.base import Link, Data, Item
 
 class Console (object):
 
@@ -6,6 +9,8 @@ class Console (object):
         self._indent = 0
         self._nt = []
         self._no = 0
+        self.logger = logging.getLogger ('ab')
+        self.log = lambda msg, level=logging.INFO: self.logger.info (msg)
 
 
     def reset (self):
@@ -59,17 +64,8 @@ class Console (object):
     def draw (self, thing):
         out = '\n'
 
-        if type (thing) is dict:
-            self.indent_more()
-
-            for k, v in thing.items():
-                out += '\n'
-                out += '{ind}{key} ... {value}'.format (ind = ' ' * self.indent(), key = k, value = self.draw (v))
-
-            self.indent_less()
-
-        # elif type (thing) in [list, tuple]:
-        elif type (thing) is list:
+        # if type (thing) in [list, tuple]:
+        if type (thing) is list:
             self.indent_more()
 
             for t in thing:
@@ -77,16 +73,30 @@ class Console (object):
 
             self.indent_less()
 
-        elif isinstance (thing, KV):
-            out += '{ind}{key} ... {value}'.format (ind = ' ' * self.indent(), key = thing.key, value = thing.value)
+        elif isinstance (thing, Item):
+            out += '{indent}[{index}] {href}'.format (
+                indent = ' ' * self.indent(),
+                index  = self.no_for_href (href = thing.href),
+                href   = '(GET) ' + thing.href,
+            )
+
+            out += self.draw (thing.data)
+            out += self.draw (thing.links)
+
+        elif isinstance (thing, Data):
+            out += '{indent}{prompt}: {value}'.format (
+                indent = ' ' * self.indent(),
+                prompt = thing.prompt,
+                value  = thing.value,
+            )
 
         elif isinstance (thing, Link):
-            out += '{ind}[{no}] {text} ({method} {href})'.format (
-                ind = ' ' * self.indent(),
-                no = self.no_for_href (href = thing.href),
-                text = thing.text,
+            out += '{indent}[index]{prompt} ({method} {href})'.format (
+                indent = ' ' * self.indent(),
+                index  = self.no_for_href (href = thing.href),
+                prompt = thing.prompt,
                 method = thing.method,
-                href = thing.href,
+                href   = thing.href,
             )
 
         else:
