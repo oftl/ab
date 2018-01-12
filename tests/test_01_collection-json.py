@@ -15,28 +15,6 @@ class Test_Collection_JSON (unittest.TestCase):
     @requests_mock.Mocker()
     def test (self, mock):
         url = 'https://api.example.net'
-        collection = dict (
-            collection = dict (
-                version = '1.0',
-                href    = url,
-                items   = [
-                    dict (
-                        href = '%s/%s'.format (url, item),
-                        data = [
-                            dict (
-                                name = 'caption',
-                                value = 'this is item %s'.format (item),
-                            ),
-                            dict (
-                                name = 'value',
-                                value = item,
-                            ),
-                        ],
-                    )
-                    for item in 'one two three'.split()
-                ]
-            )
-        )
 
         mock.get (url,
             status_code = 200,
