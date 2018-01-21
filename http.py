@@ -80,15 +80,15 @@ class Collection_JSON (TheOrigin):
                         )
                         for data in item.get ('data')
                     ],
-                    #  links = [
-                    #      Link (
-                    #          method = 'GET',
-                    #          rel    = link.get ('rel'),
-                    #          href   = link.get ('href'),
-                    #          prompt = link.get ('prompt'),
-                    #      )
-                    #      for link in item.get ('links')
-                    #  ],
+                    links = [
+                        Link (
+                            method = 'GET',
+                            rel    = link.get ('rel'),
+                            href   = link.get ('href'),
+                            prompt = link.get ('prompt'),
+                        )
+                        for link in item.get ('links')
+                    ],
                 )
                 for item in data.get ('items')
             ]))

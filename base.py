@@ -1,6 +1,35 @@
-import collections
+class NavTable ():
 
-NavTable = collections.namedtuple ('NavTable', 'no, href')
+    def __init__ (self, **kwa):
+        self._targets = []
+
+    #  def __repr__ (self):
+    #      return "Item (href={href}, data={data}, links={links})".format (
+    #          href   = self.href,
+    #          data   = self.data,
+    #          links  = self.links,
+    #      )
+
+    def fetch (self, **kwa):
+        no = kwa.get ('no')
+
+        targets = [tgt.get ('href') for tgt in self._targets if tgt.get ('no') == no]
+
+        if len(targets):
+            return targets.pop()
+        else:
+            raise RuntimeWarning ('invalid no')
+
+
+    def set (self, **kwa):
+        no = len (self._targets)
+
+        self._targets.append (dict (
+            no   = no,
+            href = kwa.get ('href'),
+        ))
+
+        return no
 
 class Item ():
 

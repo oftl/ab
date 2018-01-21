@@ -7,14 +7,15 @@ class Console (object):
 
     def __init__ (self):
         self._indent = 0
-        self._nt = []
+        self._nt = NavTable()
         self._no = 0
         self.logger = logging.getLogger ('ab')
         self.log = lambda msg, level=logging.INFO: self.logger.info (msg)
 
 
     def reset (self):
-        self.__init__()
+        # self.__init__()
+        pass
 
 
     def indent_more (self):
@@ -31,34 +32,23 @@ class Console (object):
         return self._indent
 
 
-    def add_nav_entry (self, **kwa):
-        if kwa:
-            no = kwa.get ('no')
-            href = kwa.get ('href')
-
-            if no and href:
-                self._nt.append (NavTable (kwa.get ('no'), kwa.get ('href')))
-
-        return self._nt.append
-
-
-    def nav_table (self):
-        if not len (self._nt):
-            raise UserWarning ('empty nav table')
-
-        return self._nt
-
-
-    def next_target_no (self):
-        self._target_no += 1
-
-
-    def no_for_href (self, **kwa):
-        href = kwa.get ('href')
-        self._no += 1
-
-        self.add_nav_entry (no = self._no, href = href)
-        return self._no
+    #  def add_nav_entry (self, **kwa):
+    #      href = kwa.get ('href')
+    #
+    #      if href:
+    #          no = self._nt.set (href = href)
+    #          return no
+    #
+    #
+    #  def nav_table (self):
+    #      if not len (self._nt):
+    #          raise UserWarning ('empty nav table')
+    #
+    #      return self._nt
+    #
+    #
+    #  def next_target_no (self):
+    #      self._target_no += 1
 
 
     def draw (self, thing):
@@ -74,10 +64,11 @@ class Console (object):
             self.indent_less()
 
         elif isinstance (thing, Item):
-            out += '{indent}[{index}] {href}'.format (
+            out += '{indent}[{index}] {prompt} ({href})'.format (
                 indent = ' ' * self.indent(),
-                index  = self.no_for_href (href = thing.href),
-                href   = '(GET) ' + thing.href,
+                index  = self._nt.set (href = thing.href),
+                prompt = 'Permaurl',
+                href   = 'GET ' + thing.href,
             )
 
             out += self.draw (thing.data)
@@ -91,9 +82,9 @@ class Console (object):
             )
 
         elif isinstance (thing, Link):
-            out += '{indent}[index]{prompt} ({method} {href})'.format (
+            out += '{indent}[{index}] {prompt} ({method} {href})'.format (
                 indent = ' ' * self.indent(),
-                index  = self.no_for_href (href = thing.href),
+                index  = self._nt.set (href = thing.href),
                 prompt = thing.prompt,
                 method = thing.method,
                 href   = thing.href,

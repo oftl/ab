@@ -52,7 +52,7 @@ def main ():
             url = cmd[5:]
 
         elif re.search ('^\d+$', cmd):
-            url = list (filter (lambda n: str(n.no) == cmd, ui.nav_table())).pop().href
+            url = ui._nt.fetch (no = int (cmd))
 
             # keep history reusable
             history.strings.pop()
