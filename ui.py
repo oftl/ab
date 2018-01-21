@@ -8,14 +8,13 @@ class Console (object):
     def __init__ (self):
         self._indent = 0
         self._nt = NavTable()
-        self._no = 0
         self.logger = logging.getLogger ('ab')
         self.log = lambda msg, level=logging.INFO: self.logger.info (msg)
 
 
     def reset (self):
-        # self.__init__()
-        pass
+        self._indent = 0
+        self._nt = NavTable()
 
 
     def indent_more (self):

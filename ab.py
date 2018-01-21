@@ -35,8 +35,6 @@ def main ():
     ui = ab.ui.Console()
 
     while True:
-        ui.reset()
-
         cmd = prompt (
             '> ',
             completer = completer,
@@ -68,6 +66,8 @@ def main ():
         href, items = ret.get ('href'), ret.get ('items')
 
         log ('base items: %s' % items)
+
+        ui.reset()
         print (ui.draw (items))
 
 log = lambda msg, level=logging.INFO: logger.info (msg)
